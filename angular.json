@@ -18,6 +18,7 @@
           "options": {
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
+            "scripts": ["zone.js","src/polyfills.ts"],
             "assets": [
               {
                 "glob": "**/*",
@@ -54,9 +55,13 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "proxyConfig": "src/proxy.conf.local.json"
+          },
           "configurations": {
             "production": {
-              "buildTarget": "pointing-poker:build:production"
+              "buildTarget": "pointing-poker:build:production",
+              "proxyConfig": "src/proxy.conf.prod.json"
             },
             "development": {
               "buildTarget": "pointing-poker:build:development"

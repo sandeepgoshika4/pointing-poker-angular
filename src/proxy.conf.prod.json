@@ -1,0 +1,15 @@
+{
+  "/api": {
+    "target": "http://192.168.18.200:30080",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "info"
+  },
+  "/ws": {
+    "target": "http://192.168.18.200:30080",
+    "ws": true,
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "info"
+  }
+}

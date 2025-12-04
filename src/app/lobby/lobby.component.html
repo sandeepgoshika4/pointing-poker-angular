@@ -1,0 +1,24 @@
+<!-- src/app/lobby/lobby.component.html -->
+<div class="lobby">
+  <h1>Point Poker</h1>
+
+  <label>
+    Your Name
+    <input [(ngModel)]="playerName" placeholder="Enter your name" />
+  </label>
+
+  <div class="actions">
+    <button (click)="createRoom()">Create Room</button>
+  </div>
+
+  <hr />
+
+  <label>
+    Room Code
+    <input [(ngModel)]="roomCode" placeholder="ABC123" />
+  </label>
+
+  <div class="actions">
+    <button (click)="joinRoom()">Join Room</button>
+  </div>
+</div>

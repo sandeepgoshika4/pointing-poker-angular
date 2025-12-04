@@ -1,0 +1,56 @@
+<div *ngIf="room as r" class="room">
+  <header>
+    <h2>Room {{ r.code }}</h2>
+
+    <div class="story">
+      <label>
+        Story Title
+        <input [disabled]="!isRoomOwner(r)" [(ngModel)]="storyTitle" (blur)="saveStory()" />
+      </label>
+
+      <label>
+        Jira Ticket
+        <input [disabled]="!isRoomOwner(r)" [(ngModel)]="jiraKey" (blur)="saveStory()" />
+      </label>
+    </div>
+
+    <div class="controls">
+      <button  *ngIf="isRoomOwner(r)" (click)="reveal()">Reveal</button>
+      <button  *ngIf="isRoomOwner(r)" (click)="hide()">Hide</button>
+      <button  *ngIf="isRoomOwner(r)" (click)="reset()">Reset Round</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="players">
+      <h3>Players</h3>
+      <div *ngFor="let p of r.players" class="player-row">
+        <span>{{ p.name }}</span>
+
+        <span *ngIf="!p.vote">No vote</span>
+        <span *ngIf="p.vote && !r.revealed">Hidden</span>
+        <span *ngIf="p.vote && r.revealed">{{ p.vote }}</span>
+      </div>
+    </section>
+
+    <section class="deck">
+      <h3>Pick your card</h3>
+      <button *ngFor="let card of deck" (click)="vote(card)" [class.selected]="getPlayerVote(playerId) === card">
+        {{ card }}
+      </button>
+    </section>
+    <div class="share">
+      <label>Share this link:</label>
+
+      <input type="text" [value]="shareUrl" readonly style="width: 320px; margin-right: 10px" />
+
+      <button (click)="navigator.clipboard.writeText(shareUrl)">
+        Copy Link
+      </button>
+    </div>
+  </main>
+</div>
+
+<div *ngIf="!room">
+  Loading room...
+</div>
