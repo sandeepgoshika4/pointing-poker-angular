@@ -13,7 +13,7 @@ RUN npm run build --prod
 # === Stage 2: Use NGINX to serve the app ===
 FROM nginx:alpine
 
-COPY --from=build /usr/src/app/dist/POINTING_POKER_FRONTEND_FOLDER/ /usr/share/nginx/html/
+COPY --from=build /usr/src/app/dist/pointing-poker/ /usr/share/nginx/html/
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
