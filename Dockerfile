@@ -1,20 +1,19 @@
 # === Stage 1: Build Angular app ===
-FROM node:18-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /usr/src/app
 
-# Install dependencies
 COPY package*.json ./
+
 RUN npm ci
 
-# Copy source and build
 COPY . .
+
 RUN npm run build --prod
 
-# === Stage 2: NGINX to serve the built app ===
+# === Stage 2: Use NGINX to serve the app ===
 FROM nginx:alpine
-# Replace YOUR_APP_DIST_FOLDER with your dist folder name
-COPY --from=build /usr/src/app/dist/pointing-poker/ /usr/share/nginx/html/
 
-# Optional: custom NGINX config later if you want
+COPY --from=build /usr/src/app/dist/POINTING_POKER_FRONTEND_FOLDER/ /usr/share/nginx/html/
+
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
