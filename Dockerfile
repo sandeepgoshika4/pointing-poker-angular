@@ -12,6 +12,9 @@ FROM nginx:alpine
 RUN mkdir -p /usr/share/nginx/html
 RUN rm -rf /usr/share/nginx/html/* || true
 
+# Add this line to copy your custom config
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+
 COPY --from=build /app/dist/pointing-poker/browser/ /usr/share/nginx/html/
 
 EXPOSE 80
