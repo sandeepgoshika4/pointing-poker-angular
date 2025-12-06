@@ -4,84 +4,79 @@ pipeline {
     environment {
         DOCKERHUB_USER = "sandeepgoshika4"
         IMAGE_NAME     = "poker-frontend"
+        IMAGE_TAG      = "v${BUILD_NUMBER}"
         KUBECONFIG     = credentials('kubeconfig-pi')
     }
 
     stages {
 
-        /* ---------------------------------------------------
-           CHECKOUT CODE
-        --------------------------------------------------- */
         stage('Checkout Code') {
             steps {
                 checkout scm
             }
         }
 
-        /* ---------------------------------------------------
-           PREPARE BUILDX FOR ARM64 BUILDS
-        --------------------------------------------------- */
         stage('Prepare Buildx for ARM64') {
             steps {
                 sh '''
                     echo "Installing ARM64 emulation..."
-                    docker run --privileged --rm tonistiigi/binfmt --install all
+                    docker run --privileged --rm tonistiigi/binfmt --install all || true
 
-                    echo "Creating buildx builder (safe if exists)..."
+                    echo "Creating Buildx builder..."
                     docker buildx create --use --name mybuilder || true
 
-                    echo "Bootstrapping buildx..."
+                    echo "Bootstrapping Buildx..."
                     docker buildx inspect --bootstrap
                 '''
             }
         }
 
-        /* ---------------------------------------------------
-           BUILD & PUSH DOCKER IMAGE (NO CACHE)
-        --------------------------------------------------- */
-        stage('Build & Push ARM64 Docker Image') {
+        stage('Build & Push Docker Image (Versioned Tag)') {
             steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'dockerhub-creds',
-                        usernameVariable: 'USER',
-                        passwordVariable: 'PASS'
-                    )
-                ]) {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
+                                                 usernameVariable: 'USER',
+                                                 passwordVariable: 'PASS')]) {
+
                     sh '''
-                        echo "Logging in to Docker Hub..."
+                        echo "Logging into Docker Hub..."
                         echo "$PASS" | docker login -u "$USER" --password-stdin
 
-                        echo "Building ARM64 Docker image with NO CACHE..."
+                        echo "Building Docker image with tag: ${IMAGE_TAG}"
                         docker buildx build \
-                          --no-cache \
-                          --platform linux/arm64 \
-                          -t $DOCKERHUB_USER/$IMAGE_NAME:latest \
-                          -f Dockerfile \
-                          . \
-                          --push
+                            --platform linux/arm64 \
+                            --no-cache \
+                            -t $DOCKERHUB_USER/$IMAGE_NAME:${IMAGE_TAG} \
+                            -t $DOCKERHUB_USER/$IMAGE_NAME:latest \
+                            --push \
+                            -f Dockerfile .
                     '''
                 }
             }
         }
 
-        /* ---------------------------------------------------
-           DEPLOY TO KUBERNETES
-        --------------------------------------------------- */
-        stage('Deploy to Kubernetes') {
+        stage('Update Kubernetes Deployment') {
             steps {
                 sh '''
-                    echo "Deploying Angular frontend to K8s..."
+                    echo "Deploying new image to Kubernetes..."
+
                     export KUBECONFIG=$KUBECONFIG
 
-                    # Apply deployment and service
-                    kubectl apply -n poker-app -f /home/jenkins/k8s/poker-app/frontend-deployment.yaml
-                    kubectl apply -n poker-app -f /home/jenkins/k8s/poker-app/frontend-service.yaml
+                    # Patch deployment with new image tag
+                    kubectl set image deployment/poker-frontend \
+                        poker-frontend=$DOCKERHUB_USER/$IMAGE_NAME:${IMAGE_TAG} -n poker-app
 
-                    echo "Forcing rollout to pick latest image..."
-                    kubectl rollout restart deployment/poker-frontend -n poker-app
+                    # Force refresh
+                    kubectl rollout restart deployment poker-frontend -n poker-app
+
+                    echo "Deployment updated to image tag: ${IMAGE_TAG}"
                 '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo "Deployment completed successfully with tag ${IMAGE_TAG}"
         }
     }
 }
