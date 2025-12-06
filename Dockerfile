@@ -3,9 +3,9 @@ FROM node:22-alpine AS build
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --force
 COPY . .
-RUN npm run build --prod
+RUN npm run build --prod --force
 
 # Stage 2: NGINX server
 FROM nginx:alpine
