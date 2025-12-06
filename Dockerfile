@@ -8,13 +8,13 @@ RUN npm ci
 COPY . .
 RUN npm run build --prod
 
-# === Stage 2: Serve using NGINX ===
+# === Stage 2: Use NGINX to serve the app ===
 FROM nginx:alpine
 
-# Remove default nginx content
-RUN rm -rf /usr/share/nginx/html/*
+# Make sure folder exists
+RUN mkdir -p /usr/share/nginx/html
+RUN rm -rf /usr/share/nginx/html/* || true
 
-# Copy Angular browser output to NGINX html folder
 COPY --from=build /usr/src/app/dist/pointing-poker/browser/ /usr/share/nginx/html/
 
 EXPOSE 80
