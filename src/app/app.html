@@ -1,3 +1,27 @@
+<!-- Header -->
+<header class="header">
+  <div class="header-content" routerLink="/lobby">
+    <div class="logo">♠</div>
+    <span class="app-name">Agile Poker</span>
+  </div>
+</header>
 
+<!-- Main app content -->
+<div class="app-wrapper">
+  <router-outlet></router-outlet>
+</div>
 
-<router-outlet />
+<!-- Footer -->
+<footer class="footer">
+  <nav class="footer-links">
+    <a routerLink="/about">About</a>
+    <span>•</span>
+    <a routerLink="/privacy">Privacy Policy</a>
+    <span>•</span>
+    <a routerLink="/terms">Terms of Use</a>
+  </nav>
+
+  <div class="footer-copy">
+    © 2025 Agile Poker · Agile Planning & Estimation Tool
+  </div>
+</footer>
