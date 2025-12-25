@@ -18,12 +18,19 @@
           "options": {
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
-            "scripts": ["zone.js","src/polyfills.ts"],
+            "scripts": [
+              "zone.js",
+              "src/polyfills.ts"
+            ],
             "assets": [
               {
                 "glob": "**/*",
                 "input": "public"
-              }
+              },
+              "src/favicon.ico",
+              "src/assets",
+              "src/robots.txt",
+              "src/security.txt"
             ],
             "styles": [
               "src/styles.css"
